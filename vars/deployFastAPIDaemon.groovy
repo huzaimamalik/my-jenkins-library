@@ -8,9 +8,9 @@ def call(String appDirectory) {
     
     echo "Deploying FastAPI Backend to \$APP_DIR..."
     
-    mkdir -p \$APP_DIR
-    rsync -av --exclude='.git' \$WORKSPACE/ \$APP_DIR/
-    
+    sudo mkdir -p \$APP_DIR
+    sudo rsync -av --exclude='.git' \$WORKSPACE/ \$APP_DIR/
+    sudo chown -R huz:www-data $APP_DIR
     cd \$APP_DIR
     
     if [ ! -d "venv" ]; then
