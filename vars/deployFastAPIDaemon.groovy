@@ -1,14 +1,15 @@
 def call(String appDirectory) {
-    echo "Starting global deployment script for FastAPI..."
+    echo "Starting deployment..."
     
-    sh """
-    #!/bin/bash
+    // Change to triple single quotes
+    sh '''
     set -e 
-    APP_DIR="${appDirectory}"
     
-    echo "Deploying FastAPI Backend to \$APP_DIR..."
+    # Now Groovy ignores the $ sign and passes it directly to Bash
+    APP_DIR="''' + appDirectory + '''"
     
-    sudo mkdir -p \$APP_DIR
+    echo "Deploying to $APP_DIR..."
+    sudo mkdir -p $APP_DIR
     sudo rsync -av --exclude='.git' \$WORKSPACE/ \$APP_DIR/
     sudo chown -R huz:www-data $APP_DIR
     cd \$APP_DIR
@@ -27,5 +28,5 @@ def call(String appDirectory) {
     sudo systemctl restart fastapi
     
     echo "Deployment successful!"
-    """
+    '''
 }
