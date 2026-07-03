@@ -51,9 +51,28 @@ def call(Map config) {
 
             stage('Deploy Application') {
                 steps {
-                    echo 'Deploying using Docker Compose...'
-                    sh 'docker compose down || true'
-                    sh 'docker compose up -d --build'
+                    echo 'Deploying as Linux Daemon...'
+                    sh '''
+                        # 1. Define the path
+                        APP_DIR="/opt/fastapi-backend"
+                        
+                        # 2. Sync files to the target
+                        sudo /usr/bin/mkdir -p $APP_DIR
+                        sudo /usr/bin/rsync -av --exclude='.git' ./ $APP_DIR/
+                        sudo /usr/bin/chown -R huz:www-data $APP_DIR
+                        
+                        # 3. Update dependencies
+                        cd $APP_DIR
+                        if [ ! -d "venv" ]; then
+                            python3 -m venv venv
+                        fi
+                        source venv/bin/activate
+                        pip install -r requirements.txt
+                        
+                        # 4. Restart the daemon
+                        sudo /usr/bin/systemctl daemon-reload
+                        sudo /usr/bin/systemctl restart fastapi
+                    '''
                 }
             }
         }
